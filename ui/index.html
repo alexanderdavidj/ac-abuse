@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Autocomplete abuser</title>
+        <script src="/scripts/vue.js"></script>
+        <script src="/scripts/jquery.js"></script>
+        <link rel="stylesheet" href="/ui/main.css" />
+    </head>
+
+    <body>
+        <div id="app">
+            <input
+                type="text"
+                placeholder="The quick brown fox jumped over the lazy dog"
+                id="search"
+            />
+            <input type="text" placeholder="20" id="results" />
+            <select title="language" id="languages">
+                <option
+                    v-for="language in languages"
+                    :id="language"
+                    :selected="language == 'en'"
+                >
+                    {{ language }}
+                </option>
+            </select>
+
+            <select title="acengine" id="acengine">
+                <option
+                    v-for="item in elements"
+                    :id="item.name"
+                    v-if="!item.broken"
+                >
+                    {{ item.name }}
+                </option>
+            </select>
+            <button id="linkstart">Search</button>
+
+            <ul id="searches">
+                <li v-for="result in searches">{{ result }}</li>
+            </ul>
+        </div>
+    </body>
+
+    <script type="text/javascript" src="/scripts/main.js"></script>
+</html>

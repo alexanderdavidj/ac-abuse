@@ -1,0 +1,17 @@
+{
+    "name": "ac-abuse",
+    "version": "0.0.0",
+    "description": "h",
+    "main": "node/server.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "nodemon node/server.js --ext js,json,html,css,svg,ttf"
+    },
+    "author": "alexzerozeroone",
+    "license": "ISC",
+    "dependencies": {
+        "@types/express": "^4.17.13",
+        "express": "^4.17.1",
+        "path": "^0.12.7"
+    }
+}
