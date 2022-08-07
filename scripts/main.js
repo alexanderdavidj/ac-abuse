@@ -1,271 +1,320 @@
-// var app = new Vue({
-//     el: "#app",
-//     data: {
-//         scrollButton: false,
-//     },
-// });
+const sources = [
+    {
+        name: "duckduckgo",
+        template: "https://duckduckgo.com/ac/?q=%query&kl=%language",
+        attributes: ["language"],
+        jsonp: true,
+        broken: true,
+    },
+    {
+        name: "google",
+        template:
+            "https://www.google.com/complete/search?xssi=t&client=gws-wiz&q=%query&hl=%language",
+        attributes: ["language"],
+        jsonp: true,
+        broken: true,
+    },
+    {
+        name: "yandex",
+        template:
+            "https://yandex.com/suggest/suggest-ya.cgi?part=%query&uil=%language&n=%results&v=4",
+        attributes: ["results", "language"],
+        jsonp: true,
+    },
+    {
+        name: "yahoo",
+        template:
+            "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?command=%query&nresults=%results&output=sd",
+        attributes: ["results"],
+        jsonp: true,
+        broken: true,
+    },
+    {
+        name: "baidu",
+        template: "https://www.baidu.com/sugrec?prod=pc&wd=%query",
+        attributes: [],
+        jsonp: true,
+    },
+    {
+        name: "codeinu",
+        template: "https://codeinu.net/api/search?key=%query",
+        attributes: [],
+        jsonp: false,
+    },
+    {
+        name: "codegrepper",
+        template:
+            "https://www.codegrepper.com/api/search_autocomplete.php?q=%query",
+        attributes: [],
+        jsonp: true,
+        broken: true,
+    },
+];
 
-var socket = io.connect(window.location.origin);
-var temp = Math.floor(
-    Math.random() * (9999999 - 1000000 + 1) + 1000000
-).toString(16);
+const languages = [
+    "af",
+    "sq",
+    "ar-dz",
+    "ar-bh",
+    "ar-eg",
+    "ar-iq",
+    "ar-jo",
+    "ar-kw",
+    "ar-lb",
+    "ar-ly",
+    "ar-ma",
+    "ar-om",
+    "ar-qa",
+    "ar-sa",
+    "ar-sy",
+    "ar-tn",
+    "ar-ae",
+    "ar-ye",
+    "eu",
+    "be",
+    "bg",
+    "ca",
+    "zh-hk",
+    "zh-cn",
+    "zh-sg",
+    "zh-tw",
+    "hr",
+    "cs",
+    "da",
+    "nl-be",
+    "nl",
+    "en",
+    "en-au",
+    "en-bz",
+    "en-ca",
+    "en-ie",
+    "en-jm",
+    "en-nz",
+    "en-za",
+    "en-tt",
+    "en-gb",
+    "en-us",
+    "et",
+    "fo",
+    "fa",
+    "fi",
+    "fr-be",
+    "fr-ca",
+    "fr-lu",
+    "fr",
+    "fr-ch",
+    "gd",
+    "de-at",
+    "de-li",
+    "de-lu",
+    "de",
+    "de-ch",
+    "el",
+    "he",
+    "hi",
+    "hu",
+    "is",
+    "id",
+    "ga",
+    "it",
+    "it-ch",
+    "ja",
+    "ko",
+    "ko",
+    "ku",
+    "lv",
+    "lt",
+    "mk",
+    "ml",
+    "ms",
+    "mt",
+    "no",
+    "nb",
+    "nn",
+    "pl",
+    "pt-br",
+    "pt",
+    "pa",
+    "rm",
+    "ro",
+    "ro-md",
+    "ru",
+    "ru-md",
+    "sr",
+    "sk",
+    "sl",
+    "sb",
+    "es-ar",
+    "es-bo",
+    "es-cl",
+    "es-co",
+    "es-cr",
+    "es-do",
+    "es-ec",
+    "es-sv",
+    "es-gt",
+    "es-hn",
+    "es-mx",
+    "es-ni",
+    "es-pa",
+    "es-py",
+    "es-pe",
+    "es-pr",
+    "es",
+    "es-uy",
+    "es-ve",
+    "sv",
+    "sv-fi",
+    "th",
+    "ts",
+    "tn",
+    "tr",
+    "ua",
+    "ur",
+    "ve",
+    "vi",
+    "cy",
+    "xh",
+    "ji",
+    "zu",
+];
 
-/* theme toggling */
+const engine = (name) => {
+    return sources[sources.findIndex((s) => s.name == name)];
+};
 
-$("#toggleTheme").click(() => {
-    if ($("body").hasClass("dark")) {
-        $("body").removeClass("dark");
-        $("body").addClass("light");
-        $("#themeIcon").attr("src", "/svg/sun.svg");
-    } else {
-        $("body").removeClass("light");
-        $("body").addClass("dark");
-        $("#themeIcon").attr("src", "/svg/moon.svg");
-    }
+const app = new Vue({
+    el: "#app",
+    data: {
+        elements: sources,
+        languages: languages.sort(),
+        selected: "yandex",
+        searches: ["Nothing yet"],
+
+        search: "The quick brown fox jumped over the lazy dog",
+        language: "en",
+        results: 20,
+    },
 });
 
-socket.emit("client.id.request", temp);
-socket.on("client.id.request-" + temp, (content) => {
-    socket.id = content;
-
-    if (/[0-9a-fA-F]+/g.test(socket.id)) {
-        socket.emit("client.id.success", socket.id);
-    } else {
-        socket.emit("client.id.error", socket.id);
-    }
+$("#acengine").change((e) => {
+    app.$options.data().selected = e.target.value;
 });
 
-// temp = null;
-// /* scroll down button */
-
-// $("#scrollDown").click(() => {
-//     window.scrollTo(0, document.body.scrollHeight);
-// });
-
-/* controls */
-
-$("#input").attr("tabindex", "0");
-var f = document.getElementById("form");
-var i = document.getElementById("input");
-
-// $("#input").keypress(function (e) {
-//     if (e.which === 13 && !e.shiftKey) {
-//         e.preventDefault();
-
-//         $(this).closest("form").submit();
-//     }
-// });
-
-function emitMessage(type) {
-    if (i.value) {
-        socket.emit("client.message.send", {
-            message: i.value,
-            user: socket.id,
-        });
-        i.value = "";
-    }
-}
-
-f.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    emitMessage("text");
+$("input").keyup((e) => {
+    app.$options.data()[e.target.id] = e.target.value;
 });
 
-$("#text").click(() => {
-    emitMessage("text");
+function jsonp(url) {
+    const promise = new Promise(function (resolve, reject) {
+        let script = document.createElement("script");
+        const name = "_jsonp_" + Math.round(100000 * Math.random());
 
-    $("#input").focus();
-});
+        if (url.match(/\?/)) url += "&callback=" + name;
+        else url += "?callback=" + name;
+        script.src = url;
 
-$("#video").click(() => {
-    emitMessage("video");
-});
+        window[name] = function (data) {
+            resolve(data);
+            document.body.removeChild(script);
+            delete window[name];
+        };
 
-$(document).keypress(function (e) {
-    if (
-        document.activeElement != i &&
-        document.activeElement != document.getElementById("toggleTheme")
-    ) {
-        if (e.which === 13 && !e.shiftKey) {
-            e.preventDefault();
-
-            $("#input").focus();
-        }
-    }
-});
-
-/* admin controls */
-
-// $("#clear").click(() => {
-//     socket.emit("clear", i.value);
-// });
-
-// $("#refresh").click(() => {
-//     socket.emit("refresh", i.value);
-// });
-
-/* socket listeners */
-
-function dateParse() {
-    var date = new Date();
-
-    var year = date.getFullYear();
-    var month = (date.getMonth() < 10 ? "0" : "") + date.getMonth();
-    var day = (date.getDay() < 10 ? "0" : "") + date.getDay();
-    var hours = (date.getHours() < 10 ? "0" : "") + date.getHours();
-    var minutes = (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
-    var seconds = (date.getSeconds() < 10 ? "0" : "") + date.getSeconds();
-
-    var datePrefix = "/";
-    var timePrefix = ":";
-
-    var dateString = `${day}${datePrefix}${month}${datePrefix}${year}`;
-    var timeString = `${hours}${timePrefix}${minutes}${timePrefix}${seconds}`;
-
-    var dateFirst = false;
-
-    var dateParse = `${dateFirst ? dateString : timeString} ${
-        dateFirst ? timeString : dateString
-    }`;
-    return dateParse;
-}
-
-function getYtID(url) {
-    url = url.split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
-    return url[2] !== undefined ? url[2].split(/[^0-9a-z_\-]/i)[0] : false;
-}
-
-function linkCheck(url) {
-    try {
-        regex =
-            /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/g;
-        match = regex.exec(url);
-        if (match !== undefined) {
-            return match[0];
-        } else {
-            return false;
-        }
-    } catch {
-        return false;
-    }
-}
-
-function htmlLink(message) {
-    var linkChecked = linkCheck(message);
-    if (linkChecked)
-        return message.replace(
-            linkChecked,
-            `<a href="${linkChecked}" targ
-            // generate 6 character idt="_blank">${linkChecked}</a>`
-        );
-    else return message;
-}
-
-const isImage = (url) =>
-    new Promise((resolve) => {
-        const img = new Image();
-
-        img.src = url;
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(false);
+        document.body.appendChild(script);
     });
 
-function antiXSS(unsanitized) {
-    return String(unsanitized);
+    return promise;
 }
 
-function format(message) {
-    return htmlLink(antiXSS(message));
+function search(engine, data) {
+    content = [];
+    var data2;
+    let url = engine.template;
+    for (let attr of engine.attributes) {
+        url = url.replace(`%${attr}`, data[attr]);
+    }
+
+    url = url.replace("%query", data.query);
+
+    if (engine.jsonp) {
+        data2 = jsonp(url);
+    } else {
+        data2 = $.getJSON(url);
+    }
+
+    return new Promise((resolve, reject) => {
+        data2.then((res) => {
+            newres = res;
+
+            switch (engine.name) {
+                case "duckduckgo":
+                    for (i in newres) {
+                        content.push(newres[i].phrase);
+                    }
+
+                    break;
+
+                case "google":
+                    newres = JSON.parse(res.replace(")]}'", ""));
+
+                    for (i in newres[0]) {
+                        content.push(i[0]);
+                    }
+
+                    break;
+
+                case "yandex":
+                    content = newres[1];
+                    break;
+
+                case "yahoo":
+                    newres = res.gossip.results;
+
+                    for (i in newres) {
+                        content.push(newres[i].key);
+                    }
+
+                    break;
+
+                case "baidu":
+                    newres = res.g;
+
+                    for (i in newres) {
+                        content.push(newres[i].q);
+                    }
+
+                    break;
+
+                case "codeinu":
+                    for (i in newres) {
+                        content.push(newres[i].questions);
+                    }
+
+                    break;
+
+                case "codegrepper":
+                    newres = res.terms;
+
+                    for (i in newres) {
+                        content.push(newres[i].term);
+                    }
+
+                    break;
+            }
+
+            resolve(content);
+            console.log(content);
+        });
+    });
 }
 
-function sendText(message = "", user = "") {
-    message = format(message);
-    var mainParent = document.createElement("div");
-    // var image = document.createElement("img");
-    // image.src = "/svg/person.svg";
-    // image.style = "vertical-align: middle;";
-    // mainParent.appendChild(image);
-
-    var div = document.createElement("div");
-    div.style = "vertical-align:middle; display:inline; word-wrap: break-word;";
-    div.innerHTML = `${
-        user ? user : socket.id
-    } at ${dateParse()}<br />${message}`;
-    mainParent.appendChild(div);
-
-    messages.appendChild(mainParent);
-    window.scrollTo(0, document.body.scrollHeight);
-}
-
-// function scrollToEnd() {
-//     window.scrollTo(0, document.body.scrollHeight);
-// }
-
-// socket.on("refresh", () => {
-//     window.location.reload();
-// });
-
-// socket.on("clear", () => {
-//     $("#messages").html("<li>Cleared</li>");
-// });
-
-socket.on("client.message.send", async function (data) {
-    // if (data.type == "video") {
-    //     sendText();
-    //     var item = document.createElement("video");
-    //     item.controls = true;
-    //     item.volume = 0.15;
-    //     item.src = data.message;
-    //     item.class = "h";
-    //     messages.appendChild(item);
-    //     scrollToEnd();
-    // } else if (data.type == "text") {
-    var imageCheck = await isImage(
-        linkCheck(data.message) ? linkCheck(data.message) : ""
+$("#linkstart").click(async () => {
+    app.$options.data().searches = await search(
+        engine(app.$options.data().selected),
+        {
+            query: app.$options.data().search,
+            language: app.$options.data().language,
+            results: app.$options.data().results,
+        }
     );
-
-    if (getYtID(data.message)) {
-        sendText(data.message);
-
-        var item = document.createElement("iframe");
-
-        item.width = 560;
-        item.height = 315;
-        item.src =
-            "https://www.youtube-nocookie.com/embed/" + getYtID(data.message);
-        item.title = "Youtube Player";
-        item.frameborder = "0";
-        item.allow =
-            "accelerometer; autoplay; clibpoard-write; encrypted-media; gyroscope; picture-in-picture;";
-        // item.class = "h";
-
-        messages.appendChild(item);
-        scrollToEnd();
-
-        return;
-    }
-
-    if (imageCheck) {
-        // console.log(imageCheck);
-        // console.log(linkCheck(data.message));
-        sendText(data.message, data.user);
-
-        var item = document.createElement("img");
-        var item2 = document.createElement("p");
-
-        item.src = linkCheck(data.message);
-        // item.class = "h";
-        item.style =
-            "max-width: 35%; max-height: 35%; border-width: 20px; border-color: black;";
-
-        messages.appendChild(item2);
-        messages.appendChild(item);
-        scrollToEnd();
-
-        return;
-    }
-
-    sendText(data.message, data.user);
-    // }
 });
