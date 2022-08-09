@@ -5,6 +5,7 @@ const sources = [
         attributes: ["language"],
         jsonp: true,
         broken: true,
+        cors: false,
     },
     {
         name: "google",
@@ -13,6 +14,7 @@ const sources = [
         attributes: ["language"],
         jsonp: true,
         broken: true,
+        cors: false,
     },
     {
         name: "yandex",
@@ -20,6 +22,7 @@ const sources = [
             "https://yandex.com/suggest/suggest-ya.cgi?part=%query&uil=%language&n=%results&v=4",
         attributes: ["results", "language"],
         jsonp: true,
+        cors: false,
     },
     {
         name: "yahoo",
@@ -28,18 +31,21 @@ const sources = [
         attributes: ["results"],
         jsonp: true,
         broken: true,
+        cors: false,
     },
     {
         name: "baidu",
         template: "https://www.baidu.com/sugrec?prod=pc&wd=%query",
         attributes: [],
         jsonp: true,
+        cors: false,
     },
     {
         name: "codeinu",
         template: "https://codeinu.net/api/search?key=%query",
         attributes: [],
         jsonp: false,
+        cors: false,
     },
     {
         name: "codegrepper",
@@ -48,6 +54,33 @@ const sources = [
         attributes: [],
         jsonp: true,
         broken: true,
+        cors: false,
+    },
+    {
+        name: "unity",
+        template:
+            'https://learn.unity.com/api/learn/headerSearch?k=["q:%query"]',
+        attributes: [],
+        jsonp: false,
+        broken: false,
+        cors: true,
+    },
+    {
+        name: "amazon",
+        template:
+            "https://completion.amazon.com/api/2017/suggestions?alias=aps&wc=&plain-mid=1&lop=%language&limit=%results&prefix=%query",
+        attributes: ["results", "language"],
+        jsonp: false,
+        broken: false,
+        cors: true,
+    },
+    {
+        name: "npm",
+        template: "https://www.npmjs.com/search/suggestions?q=%query",
+        attributes: [],
+        jsonp: false,
+        broken: false,
+        cors: true,
     },
 ];
 
@@ -194,15 +227,9 @@ const app = new Vue({
         search: "The quick brown fox jumped over the lazy dog",
         language: "en",
         results: 20,
+
+        autocomplete: false,
     },
-});
-
-$("#acengine").change((e) => {
-    app.$options.data().selected = e.target.value;
-});
-
-$("input").keyup((e) => {
-    app.$options.data()[e.target.id] = e.target.value;
 });
 
 function jsonp(url) {
@@ -239,7 +266,26 @@ function search(engine, data) {
     if (engine.jsonp) {
         data2 = jsonp(url);
     } else {
-        data2 = $.getJSON(url);
+        if (engine.cors) {
+            data2 = $.ajax({
+                method: "GET",
+                url: `https://cors.alexanderdavid.me/${url}`,
+                dataType: "json",
+                header: {
+                    Origin: window.location.origin,
+                },
+            }).done((res) => {
+                return res;
+            });
+        } else {
+            data2 = $.ajax({
+                method: "GET",
+                url: url,
+                dataType: "json",
+            }).done((res) => {
+                return res;
+            });
+        }
     }
 
     return new Promise((resolve, reject) => {
@@ -255,7 +301,7 @@ function search(engine, data) {
                     break;
 
                 case "google":
-                    newres = JSON.parse(res.replace(")]}'", ""));
+                    newres = res;
 
                     for (i in newres[0]) {
                         content.push(i[0]);
@@ -300,15 +346,39 @@ function search(engine, data) {
                     }
 
                     break;
+
+                case "unity":
+                    newres = res.result.learnResult.results;
+
+                    for (i in newres) {
+                        content.push(newres[i].tutorial.title);
+                    }
+
+                    break;
+
+                case "amazon":
+                    newres = res.suggestions;
+
+                    for (i in newres) {
+                        content.push(newres[i].value);
+                    }
+
+                    break;
+
+                case "npm":
+                    for (i in res) {
+                        content.push(res[i].name);
+                    }
+
+                    break;
             }
 
             resolve(content);
-            console.log(content);
         });
     });
 }
 
-$("#linkstart").click(async () => {
+async function autocomplete() {
     app.$options.data().searches = await search(
         engine(app.$options.data().selected),
         {
@@ -317,4 +387,32 @@ $("#linkstart").click(async () => {
             results: app.$options.data().results,
         }
     );
+}
+
+$("#linkstart").click(async () => {
+    autocomplete();
+});
+
+$("#acengine").change(async (e) => {
+    app.$options.data().selected = e.target.value;
+
+    if (app.$options.data().autocomplete) {
+        autocomplete();
+    }
+});
+
+$("input").keyup(async (e) => {
+    app.$options.data()[e.target.id] = e.target.value;
+
+    if (app.$options.data().autocomplete) {
+        autocomplete();
+    }
+});
+
+$("#autocomplete").change(async (e) => {
+    app.$options.data().autocomplete = e.target.checked;
+
+    if (app.$options.data().autocomplete) {
+        autocomplete();
+    }
 });

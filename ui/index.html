@@ -37,7 +37,10 @@
                     {{ item.name }}
                 </option>
             </select>
-            <button id="linkstart">Search</button>
+            <div id="container">
+                <button id="linkstart">Search</button>
+                <input type="checkbox" id="autocomplete" />
+            </div>
 
             <ul id="searches">
                 <li v-for="result in searches">{{ result }}</li>
