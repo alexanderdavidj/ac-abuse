@@ -121,6 +121,26 @@ const sources = [
         broken: false,
         cors: true,
     },
+    {
+        name: "wikipedia",
+        template:
+            "https://%language.wikipedia.org/w/api.php?action=query&format=json&generator=prefixsearch&gpssearch=%query&gpslimit=%results",
+        attributes: ["results", "language"],
+        jsonp: false,
+        json: true,
+        broken: false,
+        cors: true,
+    },
+    {
+        name: "roblox",
+        template:
+            "https://apis.roblox.com/games-autocomplete/v1/get-suggestion/%query",
+        attributes: [],
+        jsonp: false,
+        json: true,
+        broken: false,
+        cors: true,
+    },
 ];
 
 function validate(engine, res) {
@@ -228,6 +248,20 @@ function validate(engine, res) {
             case "urbandictionary":
                 for (i in res.results) {
                     content.push(res.results[i].term);
+                }
+
+                break;
+
+            case "wikipedia":
+                for (i in res.query.pages) {
+                    content.push(res.query.pages[i].title);
+                }
+
+                break;
+
+            case "roblox":
+                for (i in res.entries) {
+                    content.push(res.entries[i].searchQuery);
                 }
 
                 break;

@@ -142,7 +142,7 @@ const app = new Vue({
         language: "en",
         results: 20,
 
-        autocomplete: false,
+        autocomplete: true,
     },
 });
 
@@ -240,6 +240,14 @@ $("#linkstart").click(async () => {
 
 $("#acengine").change(async (e) => {
     app.$options.data().selected = e.target.value;
+
+    if (app.$options.data().autocomplete) {
+        autocomplete();
+    }
+});
+
+$("#languages").change(async (e) => {
+    app.$options.data().language = e.target.value;
 
     if (app.$options.data().autocomplete) {
         autocomplete();
