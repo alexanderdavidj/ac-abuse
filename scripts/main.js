@@ -253,7 +253,7 @@ function jsonp(url) {
     return promise;
 }
 
-function search(engine, data) {
+async function search(engine, data) {
     content = [];
     var data2;
     let url = engine.template;
@@ -269,10 +269,10 @@ function search(engine, data) {
         if (engine.cors) {
             data2 = $.ajax({
                 method: "GET",
-                url: `https://cors.alexanderdavid.me/${url}`,
+                url: window.location.origin + "/cors",
                 dataType: "json",
-                header: {
-                    Origin: window.location.origin,
+                headers: {
+                    url: url,
                 },
             }).done((res) => {
                 return res;
