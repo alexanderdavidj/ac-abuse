@@ -1,89 +1,3 @@
-const sources = [
-    {
-        name: "duckduckgo",
-        template: "https://duckduckgo.com/ac/?q=%query&kl=%language",
-        attributes: ["language"],
-        jsonp: true,
-        broken: true,
-        cors: false,
-    },
-    {
-        name: "google",
-        template:
-            "https://www.google.com/complete/search?xssi=t&client=gws-wiz&q=%query&hl=%language",
-        attributes: ["language"],
-        jsonp: true,
-        broken: true,
-        cors: false,
-    },
-    {
-        name: "yandex",
-        template:
-            "https://yandex.com/suggest/suggest-ya.cgi?part=%query&uil=%language&n=%results&v=4",
-        attributes: ["results", "language"],
-        jsonp: true,
-        cors: false,
-    },
-    {
-        name: "yahoo",
-        template:
-            "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?command=%query&nresults=%results&output=sd",
-        attributes: ["results"],
-        jsonp: true,
-        broken: true,
-        cors: false,
-    },
-    {
-        name: "baidu",
-        template: "https://www.baidu.com/sugrec?prod=pc&wd=%query",
-        attributes: [],
-        jsonp: true,
-        cors: false,
-    },
-    {
-        name: "codeinu",
-        template: "https://codeinu.net/api/search?key=%query",
-        attributes: [],
-        jsonp: false,
-        cors: false,
-    },
-    {
-        name: "codegrepper",
-        template:
-            "https://www.codegrepper.com/api/search_autocomplete.php?q=%query",
-        attributes: [],
-        jsonp: true,
-        broken: true,
-        cors: false,
-    },
-    {
-        name: "unity",
-        template:
-            'https://learn.unity.com/api/learn/headerSearch?k=["q:%query"]',
-        attributes: [],
-        jsonp: false,
-        broken: false,
-        cors: true,
-    },
-    {
-        name: "amazon",
-        template:
-            "https://completion.amazon.com/api/2017/suggestions?alias=aps&wc=&plain-mid=1&lop=%language&limit=%results&prefix=%query",
-        attributes: ["results", "language"],
-        jsonp: false,
-        broken: false,
-        cors: true,
-    },
-    {
-        name: "npm",
-        template: "https://www.npmjs.com/search/suggestions?q=%query",
-        attributes: [],
-        jsonp: false,
-        broken: false,
-        cors: true,
-    },
-];
-
 const languages = [
     "af",
     "sq",
@@ -267,16 +181,28 @@ async function search(engine, data) {
         data2 = jsonp(url);
     } else {
         if (engine.cors) {
-            data2 = $.ajax({
-                method: "GET",
-                url: window.location.origin + "/cors",
-                dataType: "json",
-                headers: {
-                    url: url,
-                },
-            }).done((res) => {
-                return res;
-            });
+            if (engine.json) {
+                data2 = $.ajax({
+                    method: "GET",
+                    url: window.location.origin + "/cors",
+                    dataType: "json",
+                    headers: {
+                        url: url,
+                    },
+                }).done((res) => {
+                    return res;
+                });
+            } else {
+                data2 = $.ajax({
+                    method: "GET",
+                    url: window.location.origin + "/cors",
+                    headers: {
+                        url: url,
+                    },
+                }).done((res) => {
+                    return res;
+                });
+            }
         } else {
             data2 = $.ajax({
                 method: "GET",
@@ -290,88 +216,7 @@ async function search(engine, data) {
 
     return new Promise((resolve, reject) => {
         data2.then((res) => {
-            newres = res;
-
-            switch (engine.name) {
-                case "duckduckgo":
-                    for (i in newres) {
-                        content.push(newres[i].phrase);
-                    }
-
-                    break;
-
-                case "google":
-                    newres = res;
-
-                    for (i in newres[0]) {
-                        content.push(i[0]);
-                    }
-
-                    break;
-
-                case "yandex":
-                    content = newres[1];
-                    break;
-
-                case "yahoo":
-                    newres = res.gossip.results;
-
-                    for (i in newres) {
-                        content.push(newres[i].key);
-                    }
-
-                    break;
-
-                case "baidu":
-                    newres = res.g;
-
-                    for (i in newres) {
-                        content.push(newres[i].q);
-                    }
-
-                    break;
-
-                case "codeinu":
-                    for (i in newres) {
-                        content.push(newres[i].questions);
-                    }
-
-                    break;
-
-                case "codegrepper":
-                    newres = res.terms;
-
-                    for (i in newres) {
-                        content.push(newres[i].term);
-                    }
-
-                    break;
-
-                case "unity":
-                    newres = res.result.learnResult.results;
-
-                    for (i in newres) {
-                        content.push(newres[i].tutorial.title);
-                    }
-
-                    break;
-
-                case "amazon":
-                    newres = res.suggestions;
-
-                    for (i in newres) {
-                        content.push(newres[i].value);
-                    }
-
-                    break;
-
-                case "npm":
-                    for (i in res) {
-                        content.push(res[i].name);
-                    }
-
-                    break;
-            }
+            content = validate(engine.name, res);
 
             resolve(content);
         });
