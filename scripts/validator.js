@@ -3,143 +3,124 @@ const sources = [
         name: "duckduckgo",
         template: "https://duckduckgo.com/ac/?q=%query&kl=%language",
         attributes: ["language"],
-        jsonp: true,
-        json: false,
+        tags: ["jsonp"],
         broken: true,
-        cors: false,
     },
     {
         name: "google",
         template:
             "https://www.google.com/complete/search?xssi=t&client=gws-wiz&q=%query&hl=%language",
         attributes: ["language"],
-        jsonp: true,
-        json: false,
+        tags: ["jsonp"],
         broken: true,
-        cors: false,
     },
     {
         name: "yandex",
         template:
             "https://yandex.com/suggest/suggest-ya.cgi?part=%query&uil=%language&n=%results&v=4",
         attributes: ["results", "language"],
-        jsonp: true,
-        json: false,
-        cors: false,
+        tags: ["jsonp", "cors"],
+        broken: false,
     },
     {
         name: "yahoo",
         template:
             "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?command=%query&nresults=%results&output=sd",
         attributes: ["results"],
-        jsonp: true,
-        json: false,
+        tags: ["jsonp"],
         broken: true,
-        cors: false,
     },
     {
         name: "baidu",
         template: "https://www.baidu.com/sugrec?prod=pc&wd=%query",
         attributes: [],
-        jsonp: true,
-        json: true,
-        cors: false,
+        tags: ["json", "cors"],
+        broken: false,
     },
     {
         name: "codeinu",
         template: "https://codeinu.net/api/search?key=%query",
         attributes: [],
-        jsonp: false,
-        json: true,
-        cors: false,
+        tags: ["json"],
+        broken: false,
     },
     {
         name: "codegrepper",
         template:
             "https://www.codegrepper.com/api/search_autocomplete.php?q=%query",
         attributes: [],
-        jsonp: true,
-        json: false,
+        tags: ["jsonp"],
         broken: true,
-        cors: false,
     },
     {
         name: "unity",
         template:
             'https://learn.unity.com/api/learn/headerSearch?k=["q:%query"]',
         attributes: [],
-        jsonp: false,
-        json: true,
+        tags: ["json", "cors"],
         broken: false,
-        cors: true,
     },
     {
         name: "amazon",
         template:
             "https://completion.amazon.com/api/2017/suggestions?alias=aps&wc=&plain-mid=1&lop=%language&limit=%results&prefix=%query",
         attributes: ["results", "language"],
-        jsonp: false,
-        json: true,
+        tags: ["json", "cors"],
         broken: false,
-        cors: true,
     },
     {
         name: "npm",
         template: "https://www.npmjs.com/search/suggestions?q=%query",
         attributes: [],
-        jsonp: false,
-        json: true,
+        tags: ["json", "cors"],
         broken: false,
-        cors: true,
     },
     {
         name: "steam",
         template:
             "https://store.steampowered.com/search/suggest?term=%query&cc=%language&realm=1&l=english",
         attributes: ["language"],
-        jsonp: false,
-        json: false,
+        tags: ["cors", "html"],
         broken: false,
-        cors: true,
     },
     {
         name: "emag",
         template: "https://www.emag.ro/search-suggester?query=%query",
         attributes: [],
-        jsonp: false,
-        json: true,
+        tags: ["json", "cors"],
         broken: false,
-        cors: true,
     },
     {
         name: "urbandictionary",
         template:
             "https://api.urbandictionary.com/v0/autocomplete-extra?term=%query",
         attributes: [],
-        jsonp: false,
-        json: true,
+        tags: ["json", "cors"],
         broken: false,
-        cors: true,
     },
     {
         name: "wikipedia",
         template:
             "https://%language.wikipedia.org/w/api.php?action=query&format=json&generator=prefixsearch&gpssearch=%query&gpslimit=%results",
         attributes: ["results", "language"],
-        jsonp: false,
-        json: true,
+        tags: ["json", "cors"],
         broken: false,
-        cors: true,
     },
     {
         name: "roblox",
         template:
             "https://apis.roblox.com/games-autocomplete/v1/get-suggestion/%query",
         attributes: [],
-        jsonp: false,
-        json: true,
+        tags: ["json", "cors"],
         broken: false,
-        cors: true,
+    },
+    {
+        name: "thefreedictionary",
+        template:
+            "https://www.thefreedictionary.com/_/search/suggest.ashx?query=%query",
+        attributes: [],
+        tags: ["json", "cors"],
+        broken: false,
     },
 ];
 
@@ -262,6 +243,13 @@ function validate(engine, res) {
             case "roblox":
                 for (i in res.entries) {
                     content.push(res.entries[i].searchQuery);
+                }
+
+                break;
+
+            case "thefreedictionary":
+                for (i in res[1]) {
+                    content.push(res[1][i]);
                 }
 
                 break;

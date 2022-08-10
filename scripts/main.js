@@ -177,11 +177,11 @@ async function search(engine, data) {
 
     url = url.replace("%query", data.query);
 
-    if (engine.jsonp) {
+    if (engine.tags.includes("jsonp")) {
         data2 = jsonp(url);
     } else {
-        if (engine.cors) {
-            if (engine.json) {
+        if (engine.tags.includes("cors")) {
+            if (engine.tags.includes("json")) {
                 data2 = $.ajax({
                     method: "GET",
                     url: window.location.origin + "/cors",
@@ -192,7 +192,7 @@ async function search(engine, data) {
                 }).done((res) => {
                     return res;
                 });
-            } else {
+            } else if (engine.tags.includes("html")) {
                 data2 = $.ajax({
                     method: "GET",
                     url: window.location.origin + "/cors",
