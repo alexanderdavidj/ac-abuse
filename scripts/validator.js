@@ -122,6 +122,14 @@ const sources = [
         tags: ["json", "cors"],
         broken: false,
     },
+    {
+        name: "versus",
+        template:
+            "https://versus.com/api/search/?q=%query&lang=%language&category=",
+        attributes: ["language"],
+        tags: ["json", "cors"],
+        broken: true,
+    },
 ];
 
 function validate(engine, res) {
@@ -250,6 +258,14 @@ function validate(engine, res) {
             case "thefreedictionary":
                 for (i in res[1]) {
                     content.push(res[1][i]);
+                }
+
+                break;
+            case "versus":
+                for (i in res) {
+                    for (j in res[i].suggestions) {
+                        content.push(j);
+                    }
                 }
 
                 break;
