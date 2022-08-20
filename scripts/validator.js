@@ -3,7 +3,7 @@ const sources = [
         name: "duckduckgo",
         template: "https://duckduckgo.com/ac/?q=%query&kl=%language",
         attributes: ["language"],
-        tags: ["jsonp"],
+        tags: ["json", "cors"],
         broken: true,
     },
     {
