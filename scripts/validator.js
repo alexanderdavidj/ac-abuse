@@ -4,7 +4,7 @@ const sources = [
         template: "https://duckduckgo.com/ac/?q=%query&kl=%language",
         attributes: ["language"],
         tags: ["json", "cors"],
-        broken: true,
+        broken: false,
     },
     {
         name: "google",
