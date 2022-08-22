@@ -171,47 +171,46 @@ async function search(engine, data) {
     content = [];
     var data2;
     let url = engine.template;
+    let body = JSON.stringify(data);
+
     for (let attr of engine.attributes) {
         url = url.replace(`%${attr}`, data[attr]);
+        body = body.replace(`"${attr}":`, data[attr]);
     }
 
     url = url.replace("%query", data.query);
+    body = body.replace("%query", data.query);
 
     if (engine.tags.includes("jsonp")) {
         data2 = jsonp(url);
     } else {
+        options = {
+            "cors-method": engine.method,
+        };
+
         if (engine.tags.includes("cors")) {
-            if (engine.tags.includes("json")) {
-                data2 = $.ajax({
-                    method: "GET",
-                    url: window.location.origin + "/cors",
-                    dataType: "json",
-                    headers: {
-                        url: url,
-                    },
-                }).done((res) => {
-                    return res;
-                });
-            } else if (engine.tags.includes("html")) {
-                data2 = $.ajax({
-                    method: "GET",
-                    url: window.location.origin + "/cors",
-                    headers: {
-                        url: url,
-                    },
-                }).done((res) => {
-                    return res;
-                });
-            }
-        } else {
-            data2 = $.ajax({
-                method: "GET",
+            options.url = window.location.origin + "/cors";
+            options.headers = {
                 url: url,
-                dataType: "json",
-            }).done((res) => {
-                return res;
-            });
+            };
+        } else {
+            options.url = url;
         }
+
+        if (engine.tags.includes("json")) {
+            options.headers["dataType"] = "json";
+        } else if (engine.tags.includes("html")) {
+            // options.headers["dataType"] = "html";
+        }
+
+        if (engine.method == "POST") {
+            options["cors-method"] = "POST";
+            options["cors-body"] = body;
+        }
+
+        data2 = $.ajax(options).done((res) => {
+            return res;
+        });
     }
 
     return new Promise((resolve, reject) => {
@@ -269,3 +268,16 @@ $("#autocomplete").change(async (e) => {
         autocomplete();
     }
 });
+
+o = 0;
+for (i = 0; i < sources.length; i++) if (!sources[i].broken) o++;
+console.log(
+    `Loaded ${
+        sources.length
+    } autocomplete sources. ${o} sources are unlocked. ${
+        sources.length - o
+    } sources are locked.`
+);
+
+// prettier-ignore
+unlock=()=>{for(i in sources)sources[i].broken=!1;console.log(`Unlocked ${sources.length - o} sources. %c[PROBABLY BROKEN]`, "color:red")};

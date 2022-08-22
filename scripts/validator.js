@@ -5,6 +5,7 @@ const sources = [
         attributes: ["language"],
         tags: ["json", "cors"],
         broken: false,
+        method: "GET",
     },
     {
         name: "google",
@@ -13,6 +14,7 @@ const sources = [
         attributes: ["language"],
         tags: ["jsonp"],
         broken: true,
+        method: "GET",
     },
     {
         name: "yandex",
@@ -21,6 +23,7 @@ const sources = [
         attributes: ["results", "language"],
         tags: ["jsonp", "cors"],
         broken: false,
+        method: "GET",
     },
     {
         name: "yahoo",
@@ -29,6 +32,7 @@ const sources = [
         attributes: ["results"],
         tags: ["jsonp"],
         broken: true,
+        method: "GET",
     },
     {
         name: "baidu",
@@ -36,6 +40,7 @@ const sources = [
         attributes: [],
         tags: ["json", "cors"],
         broken: false,
+        method: "GET",
     },
     {
         name: "codeinu",
@@ -43,6 +48,7 @@ const sources = [
         attributes: [],
         tags: ["json"],
         broken: false,
+        method: "GET",
     },
     {
         name: "codegrepper",
@@ -51,6 +57,7 @@ const sources = [
         attributes: [],
         tags: ["jsonp"],
         broken: true,
+        method: "GET",
     },
     {
         name: "unity",
@@ -59,6 +66,7 @@ const sources = [
         attributes: [],
         tags: ["json", "cors"],
         broken: false,
+        method: "GET",
     },
     {
         name: "amazon",
@@ -67,6 +75,7 @@ const sources = [
         attributes: ["results", "language"],
         tags: ["json", "cors"],
         broken: false,
+        method: "GET",
     },
     {
         name: "npm",
@@ -74,6 +83,7 @@ const sources = [
         attributes: [],
         tags: ["json", "cors"],
         broken: false,
+        method: "GET",
     },
     {
         name: "steam",
@@ -82,6 +92,7 @@ const sources = [
         attributes: ["language"],
         tags: ["cors", "html"],
         broken: false,
+        method: "GET",
     },
     {
         name: "emag",
@@ -89,6 +100,7 @@ const sources = [
         attributes: [],
         tags: ["json", "cors"],
         broken: false,
+        method: "GET",
     },
     {
         name: "urbandictionary",
@@ -97,6 +109,7 @@ const sources = [
         attributes: [],
         tags: ["json", "cors"],
         broken: false,
+        method: "GET",
     },
     {
         name: "wikipedia",
@@ -105,6 +118,7 @@ const sources = [
         attributes: ["results", "language"],
         tags: ["json", "cors"],
         broken: false,
+        method: "GET",
     },
     {
         name: "roblox",
@@ -113,6 +127,7 @@ const sources = [
         attributes: [],
         tags: ["json", "cors"],
         broken: false,
+        method: "GET",
     },
     {
         name: "thefreedictionary",
@@ -121,6 +136,7 @@ const sources = [
         attributes: [],
         tags: ["json", "cors"],
         broken: false,
+        method: "GET",
     },
     {
         name: "versus",
@@ -129,6 +145,21 @@ const sources = [
         attributes: ["language"],
         tags: ["json", "cors"],
         broken: true,
+        method: "GET",
+    },
+    {
+        name: "apple",
+        template: "https://www.apple.com/search-services/suggestions/",
+        attributes: [],
+        tags: ["json", "cors"],
+        broken: true,
+        method: "POST",
+        body: {
+            query: "%query",
+            src: "globalnav",
+            id: "youve-been-ac-abused",
+            locale: "%language",
+        },
     },
 ];
 
@@ -269,6 +300,8 @@ function validate(engine, res) {
                 }
 
                 break;
+
+            case "apple":
 
             default:
                 content = [];

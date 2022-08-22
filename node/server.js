@@ -16,7 +16,22 @@ server.get("/ui/:file", (req, res) => {
 });
 
 server.get("/cors/", (req, res) => {
-    request(req.headers["url"], function (error, response, body) {
+    options = {
+        url: req.headers["url"],
+        method: req.headers["cors-methodd"] || "GET",
+        headers: req.headers,
+    };
+
+    if (req.headers["cors-method"] == "POST") {
+        options.body = req.headers["body"];
+        options.headers["Content-Type"] = req.headers["body-type"];
+        options.headers["Content-Length"] = Buffer.byteLength(
+            req.headers["body"]
+        );
+    }
+
+    request(options, function (error, response, body) {
+        console.log(error, response, body);
         res.send(body);
     });
 });
