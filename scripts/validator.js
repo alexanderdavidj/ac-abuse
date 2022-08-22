@@ -161,6 +161,15 @@ const sources = [
             locale: "%language",
         },
     },
+    {
+        name: "wordpress",
+        template:
+            "https://public-api.wordpress.com/wpcom/v2/site-verticals?term=%query&limit=%results&include_weighted_roots=true",
+        attributes: ["results"],
+        tags: ["json", "cors"],
+        broken: false,
+        method: "GET",
+    },
 ];
 
 function validate(engine, res) {
@@ -302,6 +311,22 @@ function validate(engine, res) {
                 break;
 
             case "apple":
+                newres = res.results;
+
+                for (i in newres) {
+                    for (j in newres[i].sectionResults) {
+                        content.push(newres[i].sectionResults[j].label);
+                    }
+                }
+
+                break;
+
+            case "wordpress":
+                for (i in newres) {
+                    content.push(newres[i].title);
+                }
+
+                break;
 
             default:
                 content = [];

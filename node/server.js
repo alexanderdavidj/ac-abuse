@@ -18,8 +18,8 @@ server.get("/ui/:file", (req, res) => {
 server.get("/cors/", (req, res) => {
     options = {
         url: req.headers["url"],
-        method: req.headers["cors-methodd"] || "GET",
-        headers: req.headers,
+        method: req.headers["cors-method"] || "GET",
+        // headers: req.headers,
     };
 
     if (req.headers["cors-method"] == "POST") {
@@ -31,7 +31,7 @@ server.get("/cors/", (req, res) => {
     }
 
     request(options, function (error, response, body) {
-        console.log(error, response, body);
+        // console.log(error, response, body);
         res.send(body);
     });
 });

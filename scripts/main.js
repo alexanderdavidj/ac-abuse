@@ -135,7 +135,7 @@ const app = new Vue({
     data: {
         elements: sources,
         languages: languages.sort(),
-        selected: "yandex",
+        selected: "duckduckgo",
         searches: ["Nothing yet"],
 
         search: "The quick brown fox jumped over the lazy dog",
@@ -215,6 +215,10 @@ async function search(engine, data) {
 
     return new Promise((resolve, reject) => {
         data2.then((res) => {
+            if (engine.tags.includes("json")) {
+                res = JSON.parse(res);
+            }
+
             content = validate(engine.name, res);
 
             resolve(content);
