@@ -170,6 +170,42 @@ const sources = [
         broken: false,
         method: "GET",
     },
+    {
+        name: "imdb",
+        template: "https://v3.sg.media-imdb.com/suggestion/x/%query.json",
+        attributes: [],
+        tags: ["json", "cors"],
+        broken: false,
+        method: "GET",
+    },
+    // {
+    //     name: "quora",
+    //     template:
+    //         "https://www.quora.com/graphql/gql_para_POST?q=SiteSearchBarQuery",
+    //     attributes: [],
+    //     tags: ["json", "cors"],
+    //     broken: true,
+    //     method: "POST",
+    //     body: {
+    //         queryName: "SiteSearchBarQuery",
+    //         variables: {
+    //             query: "b",
+    //             querySource: "search_bar",
+    //             queryHash: "ecb5aafa257ca5fdb0a9f34b83253190",
+    //             sessionId: "0",
+    //             selectorId: "7304915296570339",
+    //         },
+
+    //         extensions: {
+    //             hash: "9ca2b953f705d31c6321c0ebbf943f75eae74fb594b519e3097f8ed0903b42d7",
+    //         },
+    //     },
+
+    //     keys: [
+    //         "f92936cfc4a29f56c8a5256fc0bd3d3e",
+    //         "7e9963e625d2ec79aa455eaa8a02e7e4",
+    //     ],
+    // },
 ];
 
 function validate(engine, res) {
@@ -324,6 +360,13 @@ function validate(engine, res) {
             case "wordpress":
                 for (i in newres) {
                     content.push(newres[i].title);
+                }
+
+                break;
+
+            case "imdb":
+                for (i in newres.d) {
+                    content.push(newres.d[i].l);
                 }
 
                 break;

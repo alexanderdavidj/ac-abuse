@@ -171,11 +171,11 @@ async function search(engine, data) {
     content = [];
     var data2;
     let url = engine.template;
-    let body = JSON.stringify(data);
+    let body = JSON.stringify(engine.body);
 
     for (let attr of engine.attributes) {
         url = url.replace(`%${attr}`, data[attr]);
-        body = body.replace(`"${attr}":`, data[attr]);
+        body = body.replace(`${attr}`, data[attr]);
     }
 
     url = url.replace("%query", data.query);
@@ -185,16 +185,16 @@ async function search(engine, data) {
         data2 = jsonp(url);
     } else {
         options = {
-            "cors-method": engine.method,
+            headers: {
+                "x-method": engine.method,
+            },
         };
 
         if (engine.tags.includes("cors")) {
             options.url = window.location.origin + "/cors";
-            options.headers = {
-                url: url,
-            };
+            options.headers["x-url"] = url;
         } else {
-            options.url = url;
+            options.headers["x-url"] = url;
         }
 
         if (engine.tags.includes("json")) {
@@ -204,11 +204,14 @@ async function search(engine, data) {
         }
 
         if (engine.method == "POST") {
-            options["cors-method"] = "POST";
-            options["cors-body"] = body;
+            options.headers["x-body"] = body;
         }
 
+        options.headers["x-type"] = "application/json";
+        options.headers["x-length"] = body.length;
+
         data2 = $.ajax(options).done((res) => {
+            console.log(options);
             return res;
         });
     }
