@@ -32,7 +32,7 @@ server.get("/cors/", (req, res) => {
 
     request(options, function (error, response, body) {
         // console.log(req.headers);
-        console.log(error, response, body);
+        // console.log(error, response, body);
         res.send(body);
     });
 });

@@ -171,15 +171,17 @@ async function search(engine, data) {
     content = [];
     var data2;
     let url = engine.template;
-    let body = JSON.stringify(engine.body);
+    if (engine.method == "POST") {
+        let body = JSON.stringify(engine.body);
+    }
 
     for (let attr of engine.attributes) {
         url = url.replace(`%${attr}`, data[attr]);
-        body = body.replace(`${attr}`, data[attr]);
+        if (engine.method == "POST") body = body.replace(`${attr}`, data[attr]);
     }
 
     url = url.replace("%query", data.query);
-    body = body.replace("%query", data.query);
+    if (engine.method == "POST") body = body.replace("%query", data.query);
 
     if (engine.tags.includes("jsonp")) {
         data2 = jsonp(url);
@@ -205,10 +207,9 @@ async function search(engine, data) {
 
         if (engine.method == "POST") {
             options.headers["x-body"] = body;
+            options.headers["x-type"] = "application/json";
+            options.headers["x-length"] = body.length;
         }
-
-        options.headers["x-type"] = "application/json";
-        options.headers["x-length"] = body.length;
 
         data2 = $.ajax(options).done((res) => {
             console.log(options);
