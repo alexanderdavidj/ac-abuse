@@ -12,34 +12,50 @@
 
     <body>
         <div id="app">
+            <!-- <div id="engine-list" class="cards">
+                <div v-for="source in sources" :id="source.name" class="card">
+                    <h1>{{ source.name }}</h1>
+                    <ul>
+                        <li v-for="tag in source.attributes">{{ tag }}</li>
+                    </ul>
+                </div>
+            </div> -->
             <input
                 type="text"
                 placeholder="The quick brown fox jumped over the lazy dog"
                 id="search"
+                class="input"
             />
-            <input type="text" placeholder="20" id="results" />
-            <select title="language" id="languages">
+            <input type="text" placeholder="20" id="results" class="input" />
+            <select title="language" id="languages" class="select">
                 <option
                     v-for="language in languages"
                     :id="language"
                     :selected="language == 'en'"
+                    class="option"
                 >
                     {{ language }}
                 </option>
             </select>
 
-            <select title="acengine" id="acengine">
+            <select title="acengine" id="acengine" class="select">
                 <option
                     v-for="item in elements"
                     :id="item.name"
                     v-if="!item.broken"
+                    class="option"
                 >
                     {{ item.name }}
                 </option>
             </select>
             <div id="container">
-                <button id="linkstart">Search</button>
-                <input type="checkbox" id="autocomplete" checked />
+                <button id="linkstart" class="btn">Search</button>
+                <input
+                    type="checkbox"
+                    id="autocomplete"
+                    checked
+                    class="input"
+                />
             </div>
 
             <ul id="searches">
