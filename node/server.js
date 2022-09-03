@@ -1,4 +1,5 @@
 const request = require("request");
+const fakeUa = require("fake-useragent");
 const server = require("express")();
 const path = require("path");
 const server_port = 25564;
@@ -29,6 +30,8 @@ server.get("/cors/", (req, res) => {
             req.headers["x-body"]
         );
     }
+
+    options["headers"]["User-Agent"] = fakeUa();
 
     request(options, function (error, response, body) {
         // console.log(req.headers);

@@ -187,6 +187,15 @@ const sources = [
         broken: false,
         method: "GET",
     },
+    {
+        name: "fiverr",
+        template:
+            "https://www.fiverr.com/search/layout/omnibox?locale=%language&query=%query",
+        attributes: ["language"],
+        tags: ["json", "cors"],
+        broken: true,
+        method: "GET",
+    },
 ];
 
 function validate(engine, res) {
@@ -359,6 +368,17 @@ function validate(engine, res) {
 
                 for (i in newres.products) {
                     content.push(newres.products[i].title);
+                }
+
+                break;
+
+            case "fiverr":
+                for (i in newres.suggestions) {
+                    content.push(newres.suggestions[i].value);
+                }
+
+                for (i in newres.users_suggestions) {
+                    content.push(newres.users_suggestions[i].value);
                 }
 
                 break;
